@@ -14,8 +14,20 @@ const tickets = [
 ]
 
 const milestones = ['تحلیل نیازمندی', 'طراحی ساختار', 'پیاده سازی', 'تست و تحویل']
+const sections = ['داشبورد', 'پروژه ها', 'تیکت ها', 'صورت حساب', 'فایل ها']
+const invoices = [
+  ['INV-120', 'فاز طراحی و تحلیل', 'پرداخت شده', '۲۵ میلیون'],
+  ['INV-121', 'پیاده سازی پنل', 'در انتظار', '۴۵ میلیون'],
+  ['INV-122', 'پشتیبانی ماه اول', 'برنامه ریزی', '۱۲ میلیون'],
+]
+const files = [
+  ['مستند نیازمندی پروژه', 'PDF', '۲.۴MB'],
+  ['نقشه API و Webhook', 'DOC', '۱.۱MB'],
+  ['راهنمای تحویل پنل', 'PDF', '۳.۰MB'],
+]
 
 function App() {
+  const [section, setSection] = useState('داشبورد')
   const [activeProject, setActiveProject] = useState(projects[0])
   const [ticketState, setTicketState] = useState('همه')
 
@@ -34,11 +46,11 @@ function App() {
             <small>مدیریت پروژه و پشتیبانی</small>
           </div>
         </div>
-        <button className="active" type="button">داشبورد</button>
-        <button type="button">پروژه ها</button>
-        <button type="button">تیکت ها</button>
-        <button type="button">صورت حساب</button>
-        <button type="button">فایل ها</button>
+        {sections.map((item) => (
+          <button className={section === item ? 'active' : ''} key={item} onClick={() => setSection(item)} type="button">
+            {item}
+          </button>
+        ))}
       </aside>
 
       <section className="page">
@@ -52,7 +64,7 @@ function App() {
           </button>
         </header>
 
-        <section className="summary">
+        {section === 'داشبورد' && <section className="summary">
           <article>
             <span>پروژه فعال</span>
             <strong>{projects.length}</strong>
@@ -68,9 +80,9 @@ function App() {
             <strong>۲۱ روز</strong>
             <small>برای پروژه های مشابه</small>
           </article>
-        </section>
+        </section>}
 
-        <section className="main-grid">
+        {(section === 'داشبورد' || section === 'پروژه ها') && <section className="main-grid">
           <article className="panel projects">
             <div className="panel-head">
               <div>
@@ -110,7 +122,9 @@ function App() {
               ))}
             </div>
           </article>
+        </section>}
 
+        {(section === 'داشبورد' || section === 'تیکت ها') && (
           <article className="panel tickets">
             <div className="panel-head">
               <div>
@@ -134,7 +148,48 @@ function App() {
               </div>
             ))}
           </article>
-        </section>
+        )}
+
+        {section === 'صورت حساب' && (
+          <section className="list-page">
+            <article className="panel">
+              <div className="panel-head">
+                <div>
+                  <p className="label">مالی پروژه</p>
+                  <h2>صورت حساب ها</h2>
+                </div>
+              </div>
+              {invoices.map(([code, title, state, amount]) => (
+                <div className="ledger-row" key={code}>
+                  <strong>{code}</strong>
+                  <span>{title}</span>
+                  <em>{state}</em>
+                  <b>{amount}</b>
+                </div>
+              ))}
+            </article>
+          </section>
+        )}
+
+        {section === 'فایل ها' && (
+          <section className="list-page">
+            <article className="panel">
+              <div className="panel-head">
+                <div>
+                  <p className="label">مستندات تحویل</p>
+                  <h2>فایل های پروژه</h2>
+                </div>
+              </div>
+              {files.map(([title, type, size]) => (
+                <div className="file-row" key={title}>
+                  <span>{title}</span>
+                  <em>{type}</em>
+                  <strong>{size}</strong>
+                </div>
+              ))}
+            </article>
+          </section>
+        )}
       </section>
     </main>
   )
