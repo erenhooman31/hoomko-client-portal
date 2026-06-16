@@ -4,7 +4,7 @@
 
 ## لینک ها
 
-- نسخه آنلاین: https://hoomko-client-portal-dliskiuum-sealand1.vercel.app
+- نسخه آنلاین: https://hoomko-client-portal.vercel.app
 - مخزن GitHub: https://github.com/erenhooman31/hoomko-client-portal
 
 ## قابلیت ها
