@@ -2,6 +2,11 @@
 
 یک نمونه کار full-stack UI برای نمایش پرتال مشتریان، مدیریت پروژه، تیکت، بودجه، فازهای تحویل و وضعیت پشتیبانی.
 
+## لینک ها
+
+- نسخه آنلاین: https://hoomko-client-portal.vercel.app
+- مخزن GitHub: https://github.com/erenhooman31/hoomko-client-portal
+
 ## قابلیت ها
 
 - داشبورد فارسی و RTL برای پروژه ها، تیکت ها و وضعیت تحویل
