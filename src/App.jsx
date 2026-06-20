@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const projects = [
@@ -45,6 +45,30 @@ function usePersistentState(key, initialValue) {
   }
 
   return [value, updateValue]
+}
+
+function useApiStatus(path) {
+  const [status, setStatus] = useState({ state: 'در حال بررسی', detail: 'اتصال API در حال تست است.' })
+
+  useEffect(() => {
+    let ignore = false
+    fetch(path)
+      .then((response) => {
+        if (!response.ok) throw new Error('API unavailable')
+        return response.json()
+      })
+      .then((payload) => {
+        if (!ignore) setStatus({ state: 'فعال', detail: `${payload.service} - ${payload.capabilities.join('، ')}` })
+      })
+      .catch(() => {
+        if (!ignore) setStatus({ state: 'دموی محلی', detail: 'روی Vercel endpoint زنده دارد؛ در لوکال با داده امن اجرا می شود.' })
+      })
+    return () => {
+      ignore = true
+    }
+  }, [path])
+
+  return status
 }
 
 function Toast({ message }) {
@@ -306,6 +330,104 @@ function ValueSection() {
   )
 }
 
+function ProductStory({ apiStatus }) {
+  return (
+    <section className="story-grid" aria-label="معرفی محصول پرتال مشتریان">
+      <article className="story-main">
+        <h2>پرتالی که اعتماد کارفرما را قبل از قرارداد می سازد</h2>
+        <p>این محصول مسیر کامل همکاری را نشان می دهد: ثبت نیازمندی، پروژه، تایید مرحله ها، تیکت، صورت حساب و تحویل فایل. برای فروش فردا آماده است و برای نسخه واقعی می تواند به auth، database و file storage متصل شود.</p>
+      </article>
+      <article className="live-proof">
+        <span>وضعیت API</span>
+        <strong>{apiStatus.state}</strong>
+        <p>{apiStatus.detail}</p>
+      </article>
+    </section>
+  )
+}
+
+function ArchitectureSection() {
+  return (
+    <section className="architecture">
+      <div>
+        <h2>معماری قابل توسعه</h2>
+        <p>لایه UI فارسی، API serverless، مدل پروژه، تیکت، تایید تحویل، صورت حساب و Handoff برای اتصال به بک اند واقعی.</p>
+      </div>
+      {['Client UI', 'Ticket API', 'Milestones', 'Invoices', 'Handoff'].map((item, index) => (
+        <div className="arch-node" key={item}>
+          <span>{index + 1}</span>
+          <strong>{item}</strong>
+        </div>
+      ))}
+    </section>
+  )
+}
+
+function ProblemSolutionSection() {
+  const problems = ['پیگیری پروژه در پیام رسان', 'ابهام در تحویل مرحله ای', 'تیکت های پراکنده', 'فایل و صورت حساب نامنظم']
+  const solutions = ['پرتال اختصاصی مشتری', 'تایید مرحله ها', 'تاریخچه تیکت و پاسخ', 'Handoff و invoice timeline']
+
+  return (
+    <section className="problem-solution" aria-label="مشکل و راه حل پرتال">
+      <div>
+        <h2>مشکل کسب و کار</h2>
+        {problems.map((item) => <p key={item}>{item}</p>)}
+      </div>
+      <div>
+        <h2>راه حل آماده فروش</h2>
+        {solutions.map((item) => <p key={item}>{item}</p>)}
+      </div>
+    </section>
+  )
+}
+
+function OfferSection() {
+  return (
+    <section className="offer-band" aria-label="پیشنهاد فروش پرتال">
+      <div>
+        <h2>پکیج آماده برای آژانس ها و فریلنسرها</h2>
+        <p>پرتال اختصاصی مشتری با داشبورد پروژه، تیکت، تایید مرحله ای، صورت حساب، فایل تحویل و نسخه آماده اتصال به بک اند.</p>
+      </div>
+      <ul>
+        <li>تحویل نسخه نمایشی برندشده در ۳ روز کاری</li>
+        <li>قابل توسعه با نقش مشتری، مدیر پروژه و پشتیبانی</li>
+        <li>مناسب فروش به تیم های خدماتی، آژانس ها و فروشگاه ها</li>
+      </ul>
+    </section>
+  )
+}
+
+function PricingSection() {
+  const plans = [
+    ['فریلنسر', '۱,۹۹۰,۰۰۰', 'برندینگ، داشبورد پروژه، تیکت پایه'],
+    ['تیم حرفه ای', '۴,۴۹۰,۰۰۰', 'تیکت، فایل، صورت حساب، تحویل مرحله ای'],
+    ['سازمانی', 'تماس بگیرید', 'نقش ها، بک اند واقعی، فایل استوریج'],
+  ]
+
+  return (
+    <section className="pricing-grid" aria-label="پکیج های فروش پرتال">
+      {plans.map(([name, price, text], index) => (
+        <article className={index === 1 ? 'price-card featured' : 'price-card'} key={name}>
+          <span>{name}</span>
+          <strong>{price}</strong>
+          <p>{text}</p>
+          <button className={index === 1 ? 'primary' : 'secondary'} type="button">انتخاب پلن</button>
+        </article>
+      ))}
+    </section>
+  )
+}
+
+function SuiteLinks() {
+  return (
+    <section className="suite-links" aria-label="دیگر محصولات Hoomko">
+      <a href="https://hoomko-commerce-ops.vercel.app">داشبورد فروشگاه</a>
+      <a href="https://hoomko-automation-hub.vercel.app">هاب اتوماسیون</a>
+      <a href="https://github.com/erenhooman31/hoomko-client-portal">GitHub</a>
+    </section>
+  )
+}
+
 function App() {
   const [section, setSection] = usePersistentState('portal-section', 'داشبورد')
   const [activeProjectName, setActiveProjectName] = usePersistentState('portal-active-project', projects[0].name)
@@ -320,6 +442,7 @@ function App() {
     goal: 'ساخت پرتال فارسی برای مدیریت پروژه، تیکت، تحویل و صورت حساب.',
   })
   const [toast, setToast] = useState('')
+  const apiStatus = useApiStatus('/api/health')
   const activeProject = projects.find((project) => project.name === activeProjectName) || projects[0]
 
   function notify(message) {
@@ -358,6 +481,7 @@ function App() {
           <div>
             <p className="label">نمونه کار full-stack</p>
             <h1>پرتال مدیریت پروژه، تیکت و تحویل مرحله ای</h1>
+            <p className="hero-copy">یک محصول قابل فروش برای شفاف سازی همکاری، تحویل پروژه و پشتیبانی مشتریان.</p>
           </div>
           <button className="primary" type="button" onClick={() => { setActiveProjectName(projects[2].name); notify('پروژه اتوماسیون انتخاب شد.') }}>
             مشاهده پروژه اتوماسیون
@@ -366,6 +490,8 @@ function App() {
 
         {section === 'داشبورد' && (
           <>
+            <ProductStory apiStatus={apiStatus} />
+            <ProblemSolutionSection />
             <section className="summary">
               <article>
                 <span>پروژه فعال</span>
@@ -395,7 +521,15 @@ function App() {
 
         {section === 'صورت حساب' && <InvoicesPage />}
         {section === 'فایل ها' && <FilesPage activeProject={activeProject} approvals={approvals} intake={intake} notify={notify} />}
-        {(section === 'داشبورد' || section === 'پروژه ها') && <ValueSection />}
+        {(section === 'داشبورد' || section === 'پروژه ها') && (
+          <>
+            <ArchitectureSection />
+            <OfferSection />
+            <PricingSection />
+            <ValueSection />
+            <SuiteLinks />
+          </>
+        )}
       </section>
     </main>
   )

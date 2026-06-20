@@ -25,11 +25,18 @@
 - فیلتر تیکت، ثبت پاسخ، بستن تیکت و ذخیره تاریخچه در `localStorage`
 - تایم لاین صورت حساب و وضعیت پرداخت
 - بخش فایل های تحویل و خروجی JSON برای Handoff پروژه
+- Vercel Function برای health check و handoff summary
+- بخش معماری قابل توسعه، پکیج فروش و لینک به محصولات دیگر مجموعه Hoomko
 - پشتیبانی از SEO، RTL، skip link و فوکوس قابل مشاهده برای کیبورد
 
 ### فناوری ها
 
-React، Vite، CSS، `@fontsource/vazirmatn` و داده های نمونه امن بدون بک اند، احراز هویت یا اطلاعات مشتری واقعی.
+React، Vite، CSS، `@fontsource/vazirmatn`، Vercel Functions و داده های نمونه امن بدون احراز هویت یا اطلاعات مشتری واقعی.
+
+### API دمو
+
+- `GET /api/health`
+- `GET /api/handoff-summary`
 
 ## اجرای محلی
 

@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   color: #172033;
-  background: #f5f7fb;
+  background: #f7f9fc;
   text-align: right;
 }
 
@@ -133,7 +133,7 @@ textarea:focus-visible,
 }
 
 .page {
-  padding: 30px;
+  padding: 34px;
 }
 
 .header,
@@ -156,6 +156,14 @@ h1 {
   font-size: clamp(34px, 5vw, 56px);
   line-height: 1.08;
   letter-spacing: 0;
+}
+
+.hero-copy {
+  max-width: 720px;
+  margin-top: 14px;
+  color: #53616c;
+  font-size: 17px;
+  line-height: 1.9;
 }
 
 h2 {
@@ -191,11 +199,16 @@ h2 {
 
 .summary article,
 .panel,
-.value-panel {
+.value-panel,
+.story-main,
+.live-proof,
+.offer-band,
+.problem-solution,
+.price-card {
   border: 1px solid #dde5ef;
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 20px 60px rgba(23, 32, 51, 0.06);
+  box-shadow: 0 12px 34px rgba(23, 32, 51, 0.05);
 }
 
 .summary article {
@@ -513,6 +526,177 @@ textarea {
   line-height: 1.9;
 }
 
+.story-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 0.8fr;
+  gap: 18px;
+  margin: 26px 0 18px;
+}
+
+.story-main,
+.live-proof,
+.offer-band {
+  padding: 24px;
+}
+
+.story-main h2,
+.architecture h2,
+.offer-band h2 {
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.story-main p,
+.architecture p,
+.offer-band p,
+.live-proof p {
+  color: #53616c;
+  line-height: 1.9;
+}
+
+.live-proof {
+  background: #172033;
+  color: #eef4ff;
+}
+
+.live-proof span {
+  color: #bfdbfe;
+}
+
+.live-proof strong {
+  display: block;
+  margin: 10px 0;
+  font-size: 34px;
+}
+
+.live-proof p {
+  color: #dbe7ff;
+}
+
+.architecture {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(5, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+  padding: 22px;
+  border-radius: 8px;
+  background: #172033;
+  color: #eef4ff;
+}
+
+.architecture p {
+  color: #dbe7ff;
+}
+
+.arch-node {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  min-height: 120px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+}
+
+.arch-node span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 800;
+}
+
+.offer-band {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 18px;
+  background: #eff6ff;
+}
+
+.offer-band ul {
+  margin: 0;
+  padding: 0 20px 0 0;
+  color: #344054;
+  line-height: 2;
+}
+
+.problem-solution {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 24px;
+}
+
+.problem-solution div {
+  display: grid;
+  gap: 10px;
+}
+
+.problem-solution h2 {
+  margin-bottom: 6px;
+}
+
+.problem-solution p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #344054;
+  background: #eff6ff;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.price-card {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+}
+
+.price-card.featured {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.price-card span {
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+.price-card strong {
+  font-size: 30px;
+}
+
+.price-card p {
+  color: #53616c;
+  line-height: 1.8;
+}
+
+.suite-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.suite-links a {
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #1d4ed8;
+  background: #eaf2ff;
+  text-decoration: none;
+  font-weight: 800;
+}
+
 @media (max-width: 960px) {
   .portal {
     grid-template-columns: 1fr;
@@ -533,7 +717,15 @@ textarea {
   .ledger-row,
   .file-row,
   .form-grid,
-  .ticket-grid {
+  .ticket-grid,
+  .story-grid,
+  .architecture,
+  .offer-band {
+    grid-template-columns: 1fr;
+  }
+
+  .problem-solution,
+  .pricing-grid {
     grid-template-columns: 1fr;
   }
 }
