@@ -37,6 +37,21 @@ React، Vite، CSS، `@fontsource/vazirmatn`، Vercel Functions و داده ها
 
 - `GET /api/health`
 - `GET /api/handoff-summary`
+- `GET /api/session`
+- `GET|POST /api/tickets`
+- `POST /api/contact`
+
+## راه اندازی Supabase رایگان
+
+1. در Supabase یک پروژه رایگان بسازید.
+2. فایل `supabase/schema.sql` را در SQL Editor اجرا کنید.
+3. برای نسخه واقعی، Supabase Auth را فعال کنید و کاربران را به `portal_profiles` وصل کنید.
+4. مقادیر `.env.example` را در Vercel Environment Variables قرار دهید.
+5. بعد از Deploy، API از حالت `demo` به `supabase` تغییر می کند.
+
+## n8n
+
+Workflow قابل import در `n8n-workflows/ticket-created-to-client-update.json` قرار دارد.
 
 ## اجرای محلی
 

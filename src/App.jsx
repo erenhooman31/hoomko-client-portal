@@ -346,6 +346,39 @@ function ProductStory({ apiStatus }) {
   )
 }
 
+function RoleProof() {
+  const [role, setRole] = usePersistentState('portal-demo-role', 'project_manager')
+  const roleLabels = {
+    client: 'کارفرما',
+    project_manager: 'مدیر پروژه',
+    admin: 'ادمین',
+  }
+  const permissions = {
+    client: ['مشاهده پروژه', 'ثبت تیکت', 'تایید تحویل'],
+    project_manager: ['پاسخ به تیکت', 'مدیریت مرحله ها', 'خروجی Handoff'],
+    admin: ['مدیریت نقش ها', 'مشاهده مالی', 'تنظیمات سیستم'],
+  }
+
+  return (
+    <section className="role-proof" aria-label="نمایش نقش های کاربری">
+      <div>
+        <h2>Auth و نقش ها</h2>
+        <p>نسخه Supabase می تواند با Auth و RLS همین نقش ها را به دیتابیس واقعی وصل کند.</p>
+      </div>
+      <div className="role-switcher">
+        {Object.keys(roleLabels).map((item) => (
+          <button className={role === item ? 'active' : ''} key={item} onClick={() => setRole(item)} type="button">
+            {roleLabels[item]}
+          </button>
+        ))}
+      </div>
+      <ul>
+        {permissions[role].map((item) => <li key={item}>{item}</li>)}
+      </ul>
+    </section>
+  )
+}
+
 function ArchitectureSection() {
   return (
     <section className="architecture">
@@ -423,7 +456,46 @@ function SuiteLinks() {
     <section className="suite-links" aria-label="دیگر محصولات Hoomko">
       <a href="https://hoomko-commerce-ops.vercel.app">داشبورد فروشگاه</a>
       <a href="https://hoomko-automation-hub.vercel.app">هاب اتوماسیون</a>
+      <a href="/proposal.html">پیشنهاد فارسی</a>
+      <a href="/openapi.json">OpenAPI</a>
       <a href="https://github.com/erenhooman31/hoomko-client-portal">GitHub</a>
+    </section>
+  )
+}
+
+function ContactSection({ notify }) {
+  const [form, setForm] = useState({ name: '', contact: '', message: 'می خواهم یک پرتال مشتریان مشابه برای پروژه هایم داشته باشم.' })
+
+  function updateField(field, value) {
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  function submitRequest(event) {
+    event.preventDefault()
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('request failed')
+        notify('درخواست پرتال ثبت شد. در حالت دمو، این پیام بدون ذخیره واقعی تایید می شود.')
+      })
+      .catch(() => notify('ثبت درخواست انجام نشد. لطفا اطلاعات تماس را دوباره بررسی کنید.'))
+  }
+
+  return (
+    <section className="contact-panel" aria-label="درخواست اجرای پرتال">
+      <div>
+        <h2>درخواست پرتال اختصاصی</h2>
+        <p>اگر پرتال پروژه، تیکت، فایل و صورت حساب می خواهید، اطلاعات تماس را ارسال کنید.</p>
+      </div>
+      <form onSubmit={submitRequest}>
+        <input value={form.name} onChange={(event) => updateField('name', event.target.value)} placeholder="نام شما" required />
+        <input value={form.contact} onChange={(event) => updateField('contact', event.target.value)} placeholder="ایمیل یا شماره تماس" required />
+        <textarea value={form.message} onChange={(event) => updateField('message', event.target.value)} rows="3" required />
+        <button className="primary" type="submit">ارسال درخواست</button>
+      </form>
     </section>
   )
 }
@@ -491,6 +563,7 @@ function App() {
         {section === 'داشبورد' && (
           <>
             <ProductStory apiStatus={apiStatus} />
+            <RoleProof />
             <ProblemSolutionSection />
             <section className="summary">
               <article>
@@ -527,6 +600,7 @@ function App() {
             <OfferSection />
             <PricingSection />
             <ValueSection />
+            <ContactSection notify={notify} />
             <SuiteLinks />
           </>
         )}

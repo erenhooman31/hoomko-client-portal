@@ -204,11 +204,53 @@ h2 {
 .live-proof,
 .offer-band,
 .problem-solution,
-.price-card {
+.price-card,
+.contact-panel,
+.role-proof {
   border: 1px solid #dde5ef;
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 12px 34px rgba(23, 32, 51, 0.05);
+}
+
+.role-proof {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 24px;
+}
+
+.role-proof p,
+.role-proof li {
+  color: #53616c;
+  line-height: 1.8;
+}
+
+.role-proof ul {
+  margin: 0;
+  padding: 0 20px 0 0;
+}
+
+.role-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-switcher button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #475467;
+  background: #f1f5f9;
+  cursor: pointer;
+}
+
+.role-switcher button.active {
+  color: #fff;
+  background: #2563eb;
 }
 
 .summary article {
@@ -697,6 +739,24 @@ textarea {
   font-weight: 800;
 }
 
+.contact-panel {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.contact-panel p {
+  color: #53616c;
+  line-height: 1.9;
+}
+
+.contact-panel form {
+  display: grid;
+  gap: 10px;
+}
+
 @media (max-width: 960px) {
   .portal {
     grid-template-columns: 1fr;
@@ -725,7 +785,9 @@ textarea {
   }
 
   .problem-solution,
-  .pricing-grid {
+  .pricing-grid,
+  .contact-panel,
+  .role-proof {
     grid-template-columns: 1fr;
   }
 }

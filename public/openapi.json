@@ -1,0 +1,43 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hoomko Client Portal API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Service and database mode health check",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/handoff-summary": {
+      "get": {
+        "summary": "Delivery handoff summary from Supabase or demo data",
+        "responses": { "200": { "description": "Handoff summary" } }
+      }
+    },
+    "/api/session": {
+      "get": {
+        "summary": "Return current demo/auth session and permissions",
+        "responses": { "200": { "description": "Session" } }
+      }
+    },
+    "/api/tickets": {
+      "get": {
+        "summary": "List project tickets from Supabase or demo data",
+        "responses": { "200": { "description": "Tickets" } }
+      },
+      "post": {
+        "summary": "Create project ticket",
+        "responses": { "201": { "description": "Created" }, "202": { "description": "Accepted in demo mode" } }
+      }
+    },
+    "/api/contact": {
+      "post": {
+        "summary": "Create a portal buyer request",
+        "responses": { "201": { "description": "Stored" }, "202": { "description": "Accepted in demo mode" } }
+      }
+    }
+  }
+}
