@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const projects = [
-  { name: 'بازطراحی فروشگاه', type: 'WooCommerce', progress: 72, budget: '۸۵ میلیون', status: 'در حال اجرا' },
-  { name: 'پنل مدیریت سفارش', type: 'React + Node.js', progress: 54, budget: '۱۲۰ میلیون', status: 'فاز توسعه' },
-  { name: 'اتوماسیون CRM', type: 'n8n + API', progress: 88, budget: '۶۰ میلیون', status: 'تست نهایی' },
+  { name: 'بازطراحی فروشگاه', type: 'WooCommerce', progress: 72, budget: 'تماس بگیرید', status: 'در حال اجرا' },
+  { name: 'پنل مدیریت سفارش', type: 'React + Node.js', progress: 54, budget: 'تماس بگیرید', status: 'فاز توسعه' },
+  { name: 'اتوماسیون CRM', type: 'n8n + API', progress: 88, budget: 'تماس بگیرید', status: 'تست نهایی' },
 ]
 
 const tickets = [
@@ -16,9 +16,9 @@ const tickets = [
 const milestones = ['تحلیل نیازمندی', 'طراحی ساختار', 'پیاده سازی', 'تست و تحویل']
 const sections = ['داشبورد', 'پروژه ها', 'تیکت ها', 'صورت حساب', 'فایل ها']
 const invoices = [
-  { code: 'INV-120', title: 'فاز طراحی و تحلیل', state: 'پرداخت شده', amount: '۲۵ میلیون', date: 'هفته ۱' },
-  { code: 'INV-121', title: 'پیاده سازی پنل', state: 'در انتظار', amount: '۴۵ میلیون', date: 'هفته ۳' },
-  { code: 'INV-122', title: 'پشتیبانی ماه اول', state: 'برنامه ریزی', amount: '۱۲ میلیون', date: 'بعد از تحویل' },
+  { code: 'INV-120', title: 'فاز طراحی و تحلیل', state: 'پرداخت شده', amount: 'تماس بگیرید', date: 'هفته ۱' },
+  { code: 'INV-121', title: 'پیاده سازی پنل', state: 'در انتظار', amount: 'تماس بگیرید', date: 'هفته ۳' },
+  { code: 'INV-122', title: 'پشتیبانی ماه اول', state: 'برنامه ریزی', amount: 'تماس بگیرید', date: 'بعد از تحویل' },
 ]
 const files = [
   ['مستند نیازمندی پروژه', 'PDF', '۲.۴MB'],
@@ -432,10 +432,11 @@ function OfferSection() {
 
 function PricingSection() {
   const plans = [
-    ['فریلنسر', '۱,۹۹۰,۰۰۰', 'برندینگ، داشبورد پروژه، تیکت پایه'],
-    ['تیم حرفه ای', '۴,۴۹۰,۰۰۰', 'تیکت، فایل، صورت حساب، تحویل مرحله ای'],
+    ['فریلنسر', 'تماس بگیرید', 'برندینگ، داشبورد پروژه، تیکت پایه'],
+    ['تیم حرفه ای', 'تماس بگیرید', 'تیکت، فایل، صورت حساب، تحویل مرحله ای'],
     ['سازمانی', 'تماس بگیرید', 'نقش ها، بک اند واقعی، فایل استوریج'],
   ]
+  const goToContact = () => document.querySelector('.contact-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
     <section className="pricing-grid" aria-label="پکیج های فروش پرتال">
@@ -444,7 +445,7 @@ function PricingSection() {
           <span>{name}</span>
           <strong>{price}</strong>
           <p>{text}</p>
-          <button className={index === 1 ? 'primary' : 'secondary'} type="button">انتخاب پلن</button>
+          <button className={index === 1 ? 'primary' : 'secondary'} type="button" onClick={goToContact}>انتخاب پلن</button>
         </article>
       ))}
     </section>
