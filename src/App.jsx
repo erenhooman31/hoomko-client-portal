@@ -16,9 +16,9 @@ const tickets = [
 const milestones = ['تحلیل نیازمندی', 'طراحی ساختار', 'پیاده سازی', 'تست و تحویل']
 const sections = ['داشبورد', 'پروژه ها', 'تیکت ها', 'صورت حساب', 'فایل ها']
 const invoices = [
-  ['INV-120', 'فاز طراحی و تحلیل', 'پرداخت شده', '۲۵ میلیون'],
-  ['INV-121', 'پیاده سازی پنل', 'در انتظار', '۴۵ میلیون'],
-  ['INV-122', 'پشتیبانی ماه اول', 'برنامه ریزی', '۱۲ میلیون'],
+  { code: 'INV-120', title: 'فاز طراحی و تحلیل', state: 'پرداخت شده', amount: '۲۵ میلیون', date: 'هفته ۱' },
+  { code: 'INV-121', title: 'پیاده سازی پنل', state: 'در انتظار', amount: '۴۵ میلیون', date: 'هفته ۳' },
+  { code: 'INV-122', title: 'پشتیبانی ماه اول', state: 'برنامه ریزی', amount: '۱۲ میلیون', date: 'بعد از تحویل' },
 ]
 const files = [
   ['مستند نیازمندی پروژه', 'PDF', '۲.۴MB'],
@@ -28,32 +28,314 @@ const files = [
 
 function usePersistentState(key, initialValue) {
   const [value, setValue] = useState(() => {
-    const saved = window.localStorage.getItem(key)
-    return saved ? JSON.parse(saved) : initialValue
+    try {
+      const saved = window.localStorage.getItem(key)
+      return saved ? JSON.parse(saved) : initialValue
+    } catch {
+      return initialValue
+    }
   })
 
   function updateValue(nextValue) {
-    setValue(nextValue)
-    window.localStorage.setItem(key, JSON.stringify(nextValue))
+    setValue((current) => {
+      const resolved = typeof nextValue === 'function' ? nextValue(current) : nextValue
+      window.localStorage.setItem(key, JSON.stringify(resolved))
+      return resolved
+    })
   }
 
   return [value, updateValue]
+}
+
+function Toast({ message }) {
+  return message ? <div className="toast" role="status">{message}</div> : null
+}
+
+function IntakeForm({ intake, setIntake, notify }) {
+  function updateField(field, value) {
+    setIntake((current) => ({ ...current, [field]: value }))
+  }
+
+  return (
+    <article className="panel intake">
+      <div className="panel-head">
+        <div>
+          <p className="label">شروع پروژه</p>
+          <h2>فرم دریافت نیازمندی کارفرما</h2>
+        </div>
+        <span className="badge">ذخیره محلی</span>
+      </div>
+      <div className="form-grid">
+        <label>
+          نوع پروژه
+          <select value={intake.type} onChange={(event) => updateField('type', event.target.value)}>
+            <option>فروشگاه اینترنتی</option>
+            <option>اتوماسیون n8n</option>
+            <option>پرتال مشتریان</option>
+          </select>
+        </label>
+        <label>
+          اولویت
+          <select value={intake.priority} onChange={(event) => updateField('priority', event.target.value)}>
+            <option>زمان تحویل سریع</option>
+            <option>کاهش خطای عملیات</option>
+            <option>گزارش مدیریتی دقیق</option>
+          </select>
+        </label>
+        <label className="wide">
+          هدف اصلی
+          <textarea value={intake.goal} onChange={(event) => updateField('goal', event.target.value)} rows="3" />
+        </label>
+      </div>
+      <button className="primary" onClick={() => notify('نیازمندی پروژه در مرورگر ذخیره شد.')} type="button">ثبت نیازمندی</button>
+    </article>
+  )
+}
+
+function ProjectBoard({ activeProject, setActiveProjectName, approvals, setApprovals, notify }) {
+  const approvedCount = milestones.filter((item) => approvals[item]).length
+  const accepted = approvedCount === milestones.length
+
+  function toggleMilestone(item) {
+    setApprovals((current) => ({ ...current, [item]: !current[item] }))
+  }
+
+  return (
+    <section className="main-grid">
+      <article className="panel projects">
+        <div className="panel-head">
+          <div>
+            <p className="label">Portfolio CRM</p>
+            <h2>پروژه ها</h2>
+          </div>
+        </div>
+        {projects.map((project) => (
+          <button
+            className={project.name === activeProject.name ? 'project selected' : 'project'}
+            key={project.name}
+            onClick={() => setActiveProjectName(project.name)}
+            type="button"
+          >
+            <span>{project.name}</span>
+            <small>{project.type}</small>
+            <i><b style={{ width: `${project.progress}%` }} /></i>
+          </button>
+        ))}
+      </article>
+
+      <article className="panel project-detail">
+        <p className="label">پروژه انتخاب شده</p>
+        <h2>{activeProject.name}</h2>
+        <div className="detail-grid">
+          <div><span>فناوری</span><strong>{activeProject.type}</strong></div>
+          <div><span>بودجه</span><strong>{activeProject.budget}</strong></div>
+          <div><span>وضعیت</span><strong>{activeProject.status}</strong></div>
+          <div><span>پیشرفت</span><strong>{activeProject.progress}%</strong></div>
+        </div>
+        <div className="timeline">
+          {milestones.map((item, index) => (
+            <button className={approvals[item] ? 'done' : ''} key={item} onClick={() => toggleMilestone(item)} type="button">
+              <span>{index + 1}</span>
+              <p>{item}</p>
+              <small>{approvals[item] ? 'تایید شد' : 'در انتظار تایید'}</small>
+            </button>
+          ))}
+        </div>
+        <div className="acceptance">
+          <strong>{accepted ? 'تحویل پروژه تایید شده است' : `${approvedCount} از ${milestones.length} مرحله تایید شده`}</strong>
+          <button className="secondary" onClick={() => { setApprovals(Object.fromEntries(milestones.map((item) => [item, true]))); notify('همه مراحل برای پذیرش تحویل تایید شد.') }} type="button">
+            تایید همه مراحل
+          </button>
+        </div>
+      </article>
+    </section>
+  )
+}
+
+function TicketsPanel({ ticketState, setTicketState, activeTicketCode, setActiveTicketCode, ticketReplies, setTicketReplies, closedTickets, setClosedTickets, notify }) {
+  const ticketList = tickets.map((ticket) => ({ ...ticket, state: closedTickets.includes(ticket.code) ? 'بسته شده' : ticket.state }))
+  const filteredTickets = ticketState === 'همه' ? ticketList : ticketList.filter((ticket) => ticket.state === ticketState)
+  const activeTicket = ticketList.find((ticket) => ticket.code === activeTicketCode) || ticketList[0]
+  const replies = ticketReplies[activeTicket.code] || []
+  const [draft, setDraft] = useState('')
+
+  function addReply() {
+    const trimmed = draft.trim()
+    if (!trimmed) return
+    const reply = { text: trimmed, time: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) }
+    setTicketReplies((current) => ({ ...current, [activeTicket.code]: [reply, ...(current[activeTicket.code] || [])] }))
+    setDraft('')
+    notify(`پاسخ برای ${activeTicket.code} ثبت شد.`)
+  }
+
+  function closeTicket() {
+    setClosedTickets((current) => (current.includes(activeTicket.code) ? current : [...current, activeTicket.code]))
+    notify(`تیکت ${activeTicket.code} بسته شد.`)
+  }
+
+  return (
+    <article className="panel tickets">
+      <div className="panel-head">
+        <div>
+          <p className="label">پشتیبانی</p>
+          <h2>تیکت ها</h2>
+        </div>
+        <div className="filters">
+          {['همه', 'باز', 'در حال بررسی', 'برنامه ریزی', 'بسته شده'].map((item) => (
+            <button className={ticketState === item ? 'active' : ''} key={item} onClick={() => setTicketState(item)} type="button">
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="ticket-grid">
+        <div>
+          {filteredTickets.map((ticket) => (
+            <button className={activeTicket.code === ticket.code ? 'ticket active-ticket' : 'ticket'} key={ticket.code} onClick={() => setActiveTicketCode(ticket.code)} type="button">
+              <strong>{ticket.code}</strong>
+              <span>{ticket.title}</span>
+              <small>{ticket.priority}</small>
+              <em>{ticket.state}</em>
+            </button>
+          ))}
+        </div>
+        <section className="ticket-detail" aria-label="جزئیات تیکت">
+          <p className="label">پاسخ و بستن تیکت</p>
+          <h3>{activeTicket.title}</h3>
+          <textarea value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="پاسخ نمونه برای کارفرما..." rows="3" />
+          <div className="action-row">
+            <button className="primary" onClick={addReply} type="button">ثبت پاسخ</button>
+            <button className="secondary" onClick={closeTicket} type="button">بستن تیکت</button>
+          </div>
+          <div className="reply-list">
+            {replies.length === 0 && <p className="empty-state">هنوز پاسخی ثبت نشده است.</p>}
+            {replies.map((reply) => (
+              <div key={`${reply.time}-${reply.text}`}>
+                <time>{reply.time}</time>
+                <p>{reply.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </article>
+  )
+}
+
+function InvoicesPage() {
+  return (
+    <section className="list-page">
+      <article className="panel">
+        <div className="panel-head">
+          <div>
+            <p className="label">مالی پروژه</p>
+            <h2>صورت حساب و وضعیت پرداخت</h2>
+          </div>
+        </div>
+        <div className="invoice-timeline">
+          {invoices.map((invoice) => (
+            <div className={invoice.state === 'پرداخت شده' ? 'ledger-row paid' : 'ledger-row'} key={invoice.code}>
+              <strong>{invoice.code}</strong>
+              <span>{invoice.title}</span>
+              <em>{invoice.state}</em>
+              <b>{invoice.amount}</b>
+              <small>{invoice.date}</small>
+            </div>
+          ))}
+        </div>
+      </article>
+    </section>
+  )
+}
+
+function FilesPage({ activeProject, approvals, intake, notify }) {
+  function exportDeliverySummary() {
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      project: activeProject,
+      intake,
+      approvals,
+      files: files.map(([title, type, size]) => ({ title, type, size })),
+      note: 'این فایل نمونه برای نمایش فرآیند تحویل است و شامل داده واقعی مشتری نیست.',
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'client-delivery-summary.json'
+    link.click()
+    URL.revokeObjectURL(url)
+    notify('خلاصه تحویل پروژه ساخته شد.')
+  }
+
+  return (
+    <section className="list-page">
+      <article className="panel">
+        <div className="panel-head">
+          <div>
+            <p className="label">مستندات تحویل</p>
+            <h2>فایل ها و Handoff پروژه</h2>
+          </div>
+          <button className="primary" onClick={exportDeliverySummary} type="button">خروجی تحویل</button>
+        </div>
+        {files.map(([title, type, size]) => (
+          <div className="file-row" key={title}>
+            <span>{title}</span>
+            <em>{type}</em>
+            <strong>{size}</strong>
+          </div>
+        ))}
+      </article>
+    </section>
+  )
+}
+
+function ValueSection() {
+  return (
+    <section className="value-panel" aria-label="ارزش پروژه برای کارفرما">
+      <div>
+        <p className="label">چرا این پروژه برای کارفرما ارزش دارد؟</p>
+        <h2>اعتماد کارفرما را با تحویل مرحله ای، تیکت، فایل و صورت حساب بساز.</h2>
+      </div>
+      <ul>
+        <li>کارفرما هر مرحله، تیکت و پرداخت را در یک مسیر شفاف می بیند.</li>
+        <li>تیم پروژه می تواند تایید تحویل، پاسخ پشتیبانی و فایل نهایی را بدون پراکندگی مدیریت کند.</li>
+        <li>خروجی Handoff نشان می دهد پروژه بعد از تحویل هم قابل پیگیری و پشتیبانی است.</li>
+      </ul>
+    </section>
+  )
 }
 
 function App() {
   const [section, setSection] = usePersistentState('portal-section', 'داشبورد')
   const [activeProjectName, setActiveProjectName] = usePersistentState('portal-active-project', projects[0].name)
   const [ticketState, setTicketState] = usePersistentState('portal-ticket-state', 'همه')
+  const [activeTicketCode, setActiveTicketCode] = usePersistentState('portal-active-ticket', tickets[0].code)
+  const [ticketReplies, setTicketReplies] = usePersistentState('portal-ticket-replies', {})
+  const [closedTickets, setClosedTickets] = usePersistentState('portal-closed-tickets', [])
+  const [approvals, setApprovals] = usePersistentState('portal-approvals', { 'تحلیل نیازمندی': true, 'طراحی ساختار': true })
+  const [intake, setIntake] = usePersistentState('portal-intake', {
+    type: 'اتوماسیون n8n',
+    priority: 'کاهش خطای عملیات',
+    goal: 'ساخت پرتال فارسی برای مدیریت پروژه، تیکت، تحویل و صورت حساب.',
+  })
+  const [toast, setToast] = useState('')
   const activeProject = projects.find((project) => project.name === activeProjectName) || projects[0]
 
-  const filteredTickets = useMemo(
-    () => (ticketState === 'همه' ? tickets : tickets.filter((ticket) => ticket.state === ticketState)),
-    [ticketState],
+  function notify(message) {
+    setToast(message)
+    window.setTimeout(() => setToast(''), 2600)
+  }
+
+  const openTicketsCount = useMemo(
+    () => tickets.filter((ticket) => !closedTickets.includes(ticket.code) && ticket.state !== 'برنامه ریزی').length,
+    [closedTickets],
   )
 
   return (
     <main className="portal" dir="rtl">
       <a className="skip-link" href="#portal-content">رفتن به محتوای اصلی</a>
+      <Toast message={toast} />
       <aside className="rail">
         <div className="identity">
           <span>H</span>
@@ -64,9 +346,9 @@ function App() {
         </div>
         <nav aria-label="بخش های پرتال مشتریان">
           {sections.map((item) => (
-          <button aria-current={section === item ? 'page' : undefined} className={section === item ? 'active' : ''} key={item} onClick={() => setSection(item)} type="button">
-            {item}
-          </button>
+            <button aria-current={section === item ? 'page' : undefined} className={section === item ? 'active' : ''} key={item} onClick={() => setSection(item)} type="button">
+              {item}
+            </button>
           ))}
         </nav>
       </aside>
@@ -77,137 +359,43 @@ function App() {
             <p className="label">نمونه کار full-stack</p>
             <h1>پرتال مدیریت پروژه، تیکت و تحویل مرحله ای</h1>
           </div>
-          <button className="primary" type="button" onClick={() => setActiveProjectName(projects[2].name)}>
+          <button className="primary" type="button" onClick={() => { setActiveProjectName(projects[2].name); notify('پروژه اتوماسیون انتخاب شد.') }}>
             مشاهده پروژه اتوماسیون
           </button>
         </header>
 
-        {section === 'داشبورد' && <section className="summary">
-          <article>
-            <span>پروژه فعال</span>
-            <strong>{projects.length}</strong>
-            <small>با وضعیت و بودجه شفاف</small>
-          </article>
-          <article>
-            <span>تیکت باز</span>
-            <strong>{tickets.filter((ticket) => ticket.state !== 'برنامه ریزی').length}</strong>
-            <small>قابل فیلتر و پیگیری</small>
-          </article>
-          <article>
-            <span>تحویل میانگین</span>
-            <strong>۲۱ روز</strong>
-            <small>برای پروژه های مشابه</small>
-          </article>
-        </section>}
+        {section === 'داشبورد' && (
+          <>
+            <section className="summary">
+              <article>
+                <span>پروژه فعال</span>
+                <strong>{projects.length}</strong>
+                <small>با وضعیت و بودجه شفاف</small>
+              </article>
+              <article>
+                <span>تیکت باز</span>
+                <strong>{openTicketsCount}</strong>
+                <small>قابل فیلتر و پیگیری</small>
+              </article>
+              <article>
+                <span>تحویل میانگین</span>
+                <strong>۲۱ روز</strong>
+                <small>برای پروژه های مشابه</small>
+              </article>
+            </section>
+            <IntakeForm intake={intake} setIntake={setIntake} notify={notify} />
+          </>
+        )}
 
-        {(section === 'داشبورد' || section === 'پروژه ها') && <section className="main-grid">
-          <article className="panel projects">
-            <div className="panel-head">
-              <div>
-                <p className="label">Portfolio CRM</p>
-                <h2>پروژه ها</h2>
-              </div>
-            </div>
-            {projects.map((project) => (
-              <button
-                className={project.name === activeProject.name ? 'project selected' : 'project'}
-                key={project.name}
-                onClick={() => setActiveProjectName(project.name)}
-                type="button"
-              >
-                <span>{project.name}</span>
-                <small>{project.type}</small>
-                <i><b style={{ width: `${project.progress}%` }} /></i>
-              </button>
-            ))}
-          </article>
-
-          <article className="panel project-detail">
-            <p className="label">پروژه انتخاب شده</p>
-            <h2>{activeProject.name}</h2>
-            <div className="detail-grid">
-              <div><span>فناوری</span><strong>{activeProject.type}</strong></div>
-              <div><span>بودجه</span><strong>{activeProject.budget}</strong></div>
-              <div><span>وضعیت</span><strong>{activeProject.status}</strong></div>
-              <div><span>پیشرفت</span><strong>{activeProject.progress}%</strong></div>
-            </div>
-            <div className="timeline">
-              {milestones.map((item, index) => (
-                <div className={index < 3 ? 'done' : ''} key={item}>
-                  <span>{index + 1}</span>
-                  <p>{item}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-        </section>}
+        {(section === 'داشبورد' || section === 'پروژه ها') && <ProjectBoard activeProject={activeProject} setActiveProjectName={setActiveProjectName} approvals={approvals} setApprovals={setApprovals} notify={notify} />}
 
         {(section === 'داشبورد' || section === 'تیکت ها') && (
-          <article className="panel tickets">
-            <div className="panel-head">
-              <div>
-                <p className="label">پشتیبانی</p>
-                <h2>تیکت ها</h2>
-              </div>
-              <div className="filters">
-                {['همه', 'باز', 'در حال بررسی', 'برنامه ریزی'].map((item) => (
-                  <button className={ticketState === item ? 'active' : ''} key={item} onClick={() => setTicketState(item)} type="button">
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {filteredTickets.map((ticket) => (
-              <div className="ticket" key={ticket.code}>
-                <strong>{ticket.code}</strong>
-                <span>{ticket.title}</span>
-                <small>{ticket.priority}</small>
-                <em>{ticket.state}</em>
-              </div>
-            ))}
-          </article>
+          <TicketsPanel ticketState={ticketState} setTicketState={setTicketState} activeTicketCode={activeTicketCode} setActiveTicketCode={setActiveTicketCode} ticketReplies={ticketReplies} setTicketReplies={setTicketReplies} closedTickets={closedTickets} setClosedTickets={setClosedTickets} notify={notify} />
         )}
 
-        {section === 'صورت حساب' && (
-          <section className="list-page">
-            <article className="panel">
-              <div className="panel-head">
-                <div>
-                  <p className="label">مالی پروژه</p>
-                  <h2>صورت حساب ها</h2>
-                </div>
-              </div>
-              {invoices.map(([code, title, state, amount]) => (
-                <div className="ledger-row" key={code}>
-                  <strong>{code}</strong>
-                  <span>{title}</span>
-                  <em>{state}</em>
-                  <b>{amount}</b>
-                </div>
-              ))}
-            </article>
-          </section>
-        )}
-
-        {section === 'فایل ها' && (
-          <section className="list-page">
-            <article className="panel">
-              <div className="panel-head">
-                <div>
-                  <p className="label">مستندات تحویل</p>
-                  <h2>فایل های پروژه</h2>
-                </div>
-              </div>
-              {files.map(([title, type, size]) => (
-                <div className="file-row" key={title}>
-                  <span>{title}</span>
-                  <em>{type}</em>
-                  <strong>{size}</strong>
-                </div>
-              ))}
-            </article>
-          </section>
-        )}
+        {section === 'صورت حساب' && <InvoicesPage />}
+        {section === 'فایل ها' && <FilesPage activeProject={activeProject} approvals={approvals} intake={intake} notify={notify} />}
+        {(section === 'داشبورد' || section === 'پروژه ها') && <ValueSection />}
       </section>
     </main>
   )
