@@ -26,10 +26,25 @@ const files = [
   ['راهنمای تحویل پنل', 'PDF', '۳.۰MB'],
 ]
 
+function usePersistentState(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    const saved = window.localStorage.getItem(key)
+    return saved ? JSON.parse(saved) : initialValue
+  })
+
+  function updateValue(nextValue) {
+    setValue(nextValue)
+    window.localStorage.setItem(key, JSON.stringify(nextValue))
+  }
+
+  return [value, updateValue]
+}
+
 function App() {
-  const [section, setSection] = useState('داشبورد')
-  const [activeProject, setActiveProject] = useState(projects[0])
-  const [ticketState, setTicketState] = useState('همه')
+  const [section, setSection] = usePersistentState('portal-section', 'داشبورد')
+  const [activeProjectName, setActiveProjectName] = usePersistentState('portal-active-project', projects[0].name)
+  const [ticketState, setTicketState] = usePersistentState('portal-ticket-state', 'همه')
+  const activeProject = projects.find((project) => project.name === activeProjectName) || projects[0]
 
   const filteredTickets = useMemo(
     () => (ticketState === 'همه' ? tickets : tickets.filter((ticket) => ticket.state === ticketState)),
@@ -38,6 +53,7 @@ function App() {
 
   return (
     <main className="portal" dir="rtl">
+      <a className="skip-link" href="#portal-content">رفتن به محتوای اصلی</a>
       <aside className="rail">
         <div className="identity">
           <span>H</span>
@@ -46,20 +62,22 @@ function App() {
             <small>مدیریت پروژه و پشتیبانی</small>
           </div>
         </div>
-        {sections.map((item) => (
-          <button className={section === item ? 'active' : ''} key={item} onClick={() => setSection(item)} type="button">
+        <nav aria-label="بخش های پرتال مشتریان">
+          {sections.map((item) => (
+          <button aria-current={section === item ? 'page' : undefined} className={section === item ? 'active' : ''} key={item} onClick={() => setSection(item)} type="button">
             {item}
           </button>
-        ))}
+          ))}
+        </nav>
       </aside>
 
-      <section className="page">
+      <section className="page" id="portal-content" tabIndex="-1">
         <header className="header">
           <div>
             <p className="label">نمونه کار full-stack</p>
             <h1>پرتال مدیریت پروژه، تیکت و تحویل مرحله ای</h1>
           </div>
-          <button className="primary" type="button" onClick={() => setActiveProject(projects[2])}>
+          <button className="primary" type="button" onClick={() => setActiveProjectName(projects[2].name)}>
             مشاهده پروژه اتوماسیون
           </button>
         </header>
@@ -94,7 +112,7 @@ function App() {
               <button
                 className={project.name === activeProject.name ? 'project selected' : 'project'}
                 key={project.name}
-                onClick={() => setActiveProject(project)}
+                onClick={() => setActiveProjectName(project.name)}
                 type="button"
               >
                 <span>{project.name}</span>
